@@ -11,10 +11,11 @@ build a docker container:
 After build, run the following to start an interactive shell in your container
 
     ```bash
-    docker run -it setup-cpp-ubuntu
+    # docker run -it setup-cpp-ubuntu
+	docker run -it -v ${PWD}:/home/workdir setup-cpp-ubuntu
     ```
 
-Or use the GNUmakefile outsite:
+Use the GNUmakefile:
 
 ```bash
 make -n

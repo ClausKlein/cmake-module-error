@@ -1,6 +1,5 @@
 #### Base Image
-# FROM mcr.microsoft.com/vscode/devcontainers/base:ubuntu as setup-cpp-ubuntu
-FROM ubuntu:22.04 as setup-cpp-ubuntu
+FROM ubuntu:24.04 as setup-cpp-ubuntu-gcc
 
 # ARG CMAKE_VERSION='3.28.1'
 # ARG NINJA_VERSION='1.11.1'
@@ -8,15 +7,20 @@ FROM ubuntu:22.04 as setup-cpp-ubuntu
 # RUN apt update && apt upgrade -y
 RUN apt-get update -qq && \
     # install git, nodejs, and npm
-    apt-get install -y --no-install-recommends git nodejs npm && \
+    apt-get install -y --no-install-recommends python-is-python3 \
+        git pipx busybox less vim tree symlinks nodejs npm && \
     # install setup-cpp
-    npm install -g setup-cpp@v0.37.0 && \
+    npm install -g setup-cpp@v1.7.1 && \
     # install the compiler and tools
     setup-cpp \
         --nala true \
-        --compiler llvm \
+        --compiler gcc \
         --cmake true \
         --ninja true \
+        --gcovr true \
+        --doxygen true \
+        --graphviz true \
+        --ccache true \
         --python true \
         --make true && \
     # cleanup
@@ -42,10 +46,15 @@ RUN apt-get update -qq && \
 ENTRYPOINT ["/bin/bash"]
 
 #### Building (example)
-FROM setup-cpp-ubuntu AS builder
+#FIXME:
+FROM aminya/setup-cpp-ubuntu-gcc:24.04 AS builder
+#XXX FROM setup-cpp-ubuntu-gcc AS builder
 
-COPY . /home/app
-WORKDIR /home/app
-RUN bash -c 'source ~/.cpprc \
-    && make all'
+WORKDIR /home/workdir
+
+# COPY . /home/app
+# WORKDIR /home/app
+# RUN bash -c 'source ~/.cpprc \
+#     && make all'
+
 ENTRYPOINT ["/bin/bash"]
