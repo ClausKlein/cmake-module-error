@@ -33,10 +33,16 @@ headeronly:
 	#XXX -run-clang-tidy -p build/header-lib
 
 docker-run:
-	docker run -it -v ${PWD}:/home/workdir setup-cpp-ubuntu
+	docker network create -d macvlan \
+	  --subnet=172.29.29.0/24 \
+	  --gateway=172.29.29.188 \
+	  -o parent=enp0s8 \
+	  my_macvlan
+	docker run -it --rm --network my_macvlan --name my_runner --ip 172.29.29.100 -v ${PWD}:/home/workdir setup-cpp-ubuntu-run
+	docker network remove my_macvlan
 
 docker-build:
-	docker build -f .devcontainer/Dockerfile -t setup-cpp-ubuntu .
+	docker build -f .devcontainer/Dockerfile -t setup-cpp-ubuntu-run .
 
 clean:
 	rm -rf build stagedir
